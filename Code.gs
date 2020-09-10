@@ -29,7 +29,7 @@ this.install = () => {
     .create("New EMR Report")
     .setTitle("New EMR Report")
     .setAllowResponseEdits(true);
-    
+
   DriveApp.getFileById(newReport.getId()).moveTo(emrFolder);
   properties.setProperty("EMR_NEW_REPORT_FORM_ID", newReport.getId());
   
@@ -107,19 +107,8 @@ this.onNewReportOpen = event => {
   )
 };
 
-// something weird is going on here. The right trigger is firing, 
-// but the submission.source is pointing to the new patient form.
-// Not sure why ...
 this.onNewReportSubmit = submission => {
-  // const properties = PropertiesService.getScriptProperties();
-
-  // const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
-  // const newReport = FormApp.openById(newReportId);
-  
-  // const responses = newReport.getResponses();
-  // const response = responses[responses.length-1];
   const response = submission.response;
-  const reportText = serialize(response);
   
   const fileId = response.getItemResponses().find(item => {
     Logger.log(item.getItem().getTitle());
@@ -128,6 +117,10 @@ this.onNewReportSubmit = submission => {
 
   const patientFile = FormApp.openById(fileId.getResponse());
   
+  const reportText = Utilities.formatString(
+    "%s\n%s", patientFile.getDescription(), serialize(response)
+  );
+
   const fileItem = patientFile.getItems().find(item => 
     item.getTitle() == 'Report'
   );
