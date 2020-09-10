@@ -110,10 +110,9 @@ this.onNewReportOpen = event => {
 this.onNewReportSubmit = submission => {
   const response = submission.response;
   
-  const fileId = response.getItemResponses().find(item => {
-    Logger.log(item.getItem().getTitle());
-    return item.getItem().getTitle() == 'Patient File ID'
-  });
+  const fileId = response.getItemResponses().find(item => 
+    item.getItem().getTitle() == 'Patient File ID'
+  );
 
   const patientFile = FormApp.openById(fileId.getResponse());
   
