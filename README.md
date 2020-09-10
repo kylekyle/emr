@@ -1,6 +1,8 @@
 # Google Forms EMR
 
-A bare-bones EMR built on Google Forms and the Google Script API. 
+This is a bare-bones electronic medical record (EMR) system built on top of [Google Forms](https://forms.google.com) with some glue from the [Google Script](https://script.google.com) API. 
+
+![](https://i.imgur.com/DOva9cp.png)
 
 ## Installation
 
@@ -38,42 +40,65 @@ Next, click *View* -> *Show manifest file*, then select *appsscript.json* in the
 }
 ```
 
-In the *Select function* dropdown in the toolbar, select `install`, and click the play button. You will be asked to authorize the script with the permissions from the manifest. You will get a really scary warning saying the script is unverified and you'll have to click *Proceed to EMR (unsafe)* to continue. 
+In the *Select function* dropdown in the toolbar select `install` then click the play button. You will be asked to authorize the script with the permissions from the manifest. You will get a really scary warning saying the script is unverified and you'll have to click *Proceed to EMR (unsafe)* to continue. 
 
-If the installation is successful, your directory layout in Google Drive will look something like this when it's done:
+If the installation is successful, your directory layout in Google Drive will look something like this:
 
 ```text
-EMR
-├── New EMR Report Form
-├── New EMR Patient Form 
-└── EMR Patients
-    └── Patient files will be created here
+EMR/
+├── New EMR Report
+├── New Patient 
+└── EMR Patients/
+    ├── Patient A
+    ├── Patient B
+    └── ...
 ```
 
-## Creating patient files
+## Adding patients
 
-When you submit the *New Patient Form*, it will create the patient file form automatically. It's important that patient files are created through enrollment and not copied from another patient file. Never edit the question in a patient file form.
+Every patient has a file, which is just another Google Form. This file is created by filling out the *New Patient Form*. The information you collect in the new patient form will be saved into that patient's file. Any reports you submit for the patient will also be saved as responses to their file. 
 
-## Adding a report to a patient file
+## Submitting reports
 
 The *New Report Form* is filled out when seeing a patient. Reports don't need to collect biographical patient information, like name and address, because each report is added to the patient's file which has that information already. 
 
-There is a pop-up that will appear when you open the *New Report Form*. 
+When you open the *New Report Form* for editing, a popup will appear with a list of patients that you can file the report against. The popup is the last thing to load, so it can take a while to appear.  
 
-## Delete a patient
+## Things you can and cannot edit
 
-Reset patient cache?
+You should not copy or delete the *New Patient* form, the *New Report* form, or the *Patients* folder. The IDs of these files are hard-coded into the project properties and copies would have different IDs. 
 
-## How does this work?
+**Patient Files**
 
-Most of the functionality in this project comes baked into Google Forms because it is an awesome project. There are really three tricks to this project:
+* You **can** edit the title and description of a patient's file. Whatever you put in the title is what will appear in the patient popup's dropdown. The description has biographical information like address, blood type, etc. 
+* You **should not** edit the questions in the patient files. The *New Report* form assumes there is only one question, called *Report* and it saves everything there. 
 
-## Notes
+**New Patient Form**
 
-This would have been a lot simpler with a Card interface, but as of the time this was written, they didn't support mobile outside of Gmail:
+* You **should not** edit or delete the *First Name* or *Last Name* questions. Those are used to create patient files. 
+* You **can** add/remove/edit any other question in the form. The responses to these questions are saved into the description of the patient's file.
 
-https://developers.google.com/gsuite/add-ons/concepts/card-interfaces
+**New Report Form**
 
-The configuration is stored in the project properties which you can get to in the Script Editor under File -> Project Properties. 
+* You **should not** edit or delete the *Patient File ID* question. This is field is automatically populated by the popup and is used to copy the report to the appropriate patient file. 
+* You **can** add/remove/edit any other question in the form. The responses to these questions are saved into the patient's file.  
 
-There are some limits: https://developers.google.com/apps-script/guides/services/quotas
+## Deleting a patient
+
+To delete a patient, just remove their patient file from  the *Patients* folder. I recommend creating an *Archive* folder to put them in.  
+
+## Getting updates
+
+The code installed into `Code.gs` just evaluates code from this repository. You should never have to update your code - you will always be running whatever code you see in this project. 
+
+## How can I tell if it broke?
+
+Log into your [Google Script dashboard](https://script.google.com) and click on *My Executions*. If you see any errors, there is a problem. Feel free to [submit an issue](https://github.com/kylekyle/emr/issues/new).
+
+## Why don't you use Google's `Card` interface?
+
+This would have been a lot simpler with a Card interface but, at the time this was written, you [couldn't access a Google Forms `Card` interface from a mobile device](https://developers.google.com/gsuite/add-ons/concepts/card-interfaces).
+
+## Is there a limit to the number patients I can have?
+
+Not really. There is a limit the number of hours that Google Scripts are allowed to execute, but the [allocations are pretty generous](https://developers.google.com/apps-script/guides/services/quotas). 
