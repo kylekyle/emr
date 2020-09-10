@@ -52,11 +52,17 @@ this.onNewPatientSubmit = submission => {
   const description = serialize(submission.response);
   const itemResponses = submission.response.getItemResponses();
   
-  const nameItem = itemResponses.find(itemResponse => 
-    itemResponse.getItem().getTitle() == 'Name'
+  const firstName = itemResponses.find(itemResponse => 
+    itemResponse.getItem().getTitle() == 'First Name'
+  ); 
+
+  const lastName = itemResponses.find(itemResponse => 
+    itemResponse.getItem().getTitle() == 'Last Name'
   ); 
   
-  const name = nameItem.getResponse();
+  const name = Utilities.formatString(
+    "%s, %s", lastName.getResponse(), firstName.getResponse()
+  )
   
   if (name in patients) {
     Logger.log("Updating %s's patient information", name);
