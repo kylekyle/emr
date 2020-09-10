@@ -109,17 +109,14 @@ this.onNewReportOpen = event => {
 
 this.onNewReportSubmit = submission => {
   const response = submission.response;
-  
+  const reportText = serialize(response);
+
   const fileId = response.getItemResponses().find(item => 
     item.getItem().getTitle() == 'Patient File ID'
   );
 
   const patientFile = FormApp.openById(fileId.getResponse());
   
-  const reportText = Utilities.formatString(
-    "%s\n%s", patientFile.getDescription(), serialize(response)
-  );
-
   const fileItem = patientFile.getItems().find(item => 
     item.getTitle() == 'Report'
   );
