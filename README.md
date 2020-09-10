@@ -101,4 +101,4 @@ This would have been a lot simpler with a Card interface but, at the time this w
 
 ## Is there a limit to the number patients I can have?
 
-Not really. There is a limit the number of hours that Google Scripts are allowed to execute, but the [allocations are pretty generous](https://developers.google.com/apps-script/guides/services/quotas). 
+Not really. There is a limit the on number of hours that Google Scripts are allowed to execute, but the [allocations are pretty generous](https://developers.google.com/apps-script/guides/services/quotas). 
