@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      #content { margin: 5px; }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+      <p>Select a patient to start a report:</p>
+      <select id="patients" data-live-search="true" title="Search patients" data-width="100%">
+      </select><br><br>
+      <a id="submit" target="_blank" role="button" class="btn btn-small btn-primary btn-block disabled">Start Report</a>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="http://localhost:9292/interface.min.js"></script>
+    <script>
+      $('#patients').selectpicker();
+      
+      google.script.run
+        .withFailureHandler(console.log)
+        .withSuccessHandler(patients => {
+          for (const [name, id] of Object.entries(patients)) {
+            const option = $("<option/>", {
+              value: id,
+            }).text(name);
+
+            option.appendTo('#patients');
+          }
+
+          $('#patients').selectpicker('refresh');
+        
+          $('#patients').change(e => {
+            google.script.run
+              .withFailureHandler(console.log)
+              .withSuccessHandler(url => {
+                $('#submit').attr('href', url).removeClass('disabled');
+              })
+              .proxy('getReportLink', $('#patients').val());
+          });
+        })
+        .proxy('getPatients');
+    </script>
+  </body>
+</html>

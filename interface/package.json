@@ -1,0 +1,28 @@
+{
+  "name": "interface",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^4.5.2",
+    "bootstrap-select": "^1.13.18",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1"
+  },
+  "devDependencies": {
+    "css-loader": "^4.3.0",
+    "html-webpack-plugin": "^4.4.1",
+    "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^4.1.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "scripts": {
+    "dev": "webpack-dev-server --mode=development --port 9292"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "main": "webpack.config.js",
+  "description": "This bundle contains the code for our patient chooser popup"
+}
