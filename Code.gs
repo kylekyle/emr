@@ -1,25 +1,3 @@
-this.getReportLink = fileId => {
-  const properties = PropertiesService.getScriptProperties();
-
-  const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
-  const newReport = FormApp.openById(newReportId);
-
-  const fileIdItem = newReport.getItems().find(item =>
-    item.getTitle() == 'Patient File ID'
-  );
-  
-  if (!fileIdItem) {
-    throw "Could not find 'Patient File ID' field in report form!";
-  }
-    
-  return newReport
-    .createResponse()
-    .withItemResponse(
-      fileIdItem.asTextItem().createResponse(fileId)
-    )
-    .toPrefilledUrl();
-};
-  
 this.install = () => {
   Logger.log("Installing Google Forms EMR");
   const properties = PropertiesService.getScriptProperties();
@@ -39,8 +17,8 @@ this.install = () => {
 
   // attach the new patient form triggers into this form
   const newPatient = FormApp.create("New Patient").setTitle("New Patient");
-  DriveApp.getFileById(newReport.getId()).moveTo(emrFolder);
-  properties.setProperty("EMR_NEW_PATIENT_FORM_ID", newReport.getId());
+  DriveApp.getFileById(newPatient.getId()).moveTo(emrFolder);
+  properties.setProperty("EMR_NEW_PATIENT_FORM_ID", newPatient.getId());
 
   // create the New Report form
   const newReport = FormApp.create("New EMR Report").setTitle("New EMR Report");
@@ -68,20 +46,6 @@ this.install = () => {
 };
 
 this.onNewPatientOpen = event => Logger.log("New patient form opened");
-
-this.getPatients = () => {
-  const patients = {};
-  const properties = PropertiesService.getScriptProperties();
-  const patientFolder = properties.getProperty("EMR_PATIENT_FOLDER_ID");
-  const files = DriveApp.getFolderById(patientFolder).getFilesByType(MimeType.GOOGLE_FORMS);
-  
-  while (files.hasNext()) {
-    const fileId = files.next().getId();
-    patients[FormApp.openById(fileId).getTitle()] = fileId;
-  }
-  
-  return patients;
-};
 
 this.onNewPatientSubmit = submission => {
   const patients = getPatients();
@@ -163,6 +127,42 @@ this.onNewReportSubmit = submission => {
       fileItem.asParagraphTextItem().createResponse(reportText)
     )
     .submit();
+};
+
+this.getPatients = () => {
+  const patients = {};
+  const properties = PropertiesService.getScriptProperties();
+  const patientFolder = properties.getProperty("EMR_PATIENT_FOLDER_ID");
+  const files = DriveApp.getFolderById(patientFolder).getFilesByType(MimeType.GOOGLE_FORMS);
+  
+  while (files.hasNext()) {
+    const fileId = files.next().getId();
+    patients[FormApp.openById(fileId).getTitle()] = fileId;
+  }
+  
+  return patients;
+};
+
+this.getReportLink = fileId => {
+  const properties = PropertiesService.getScriptProperties();
+
+  const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
+  const newReport = FormApp.openById(newReportId);
+
+  const fileIdItem = newReport.getItems().find(item =>
+    item.getTitle() == 'Patient File ID'
+  );
+  
+  if (!fileIdItem) {
+    throw "Could not find 'Patient File ID' field in report form!";
+  }
+    
+  return newReport
+    .createResponse()
+    .withItemResponse(
+      fileIdItem.asTextItem().createResponse(fileId)
+    )
+    .toPrefilledUrl();
 };
 
 this.serialize = response => {  
