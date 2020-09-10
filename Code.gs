@@ -77,6 +77,7 @@ this.onNewPatientSubmit = submission => {
     const form = FormApp
       .create(name)
       .setTitle(name)
+      .setAllowResponseEdits(true)
       .setDescription(description);
 
     form.addParagraphTextItem().setTitle("Report").setRequired(true);
