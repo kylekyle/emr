@@ -20,8 +20,7 @@ Paste the following into `Code.gs`:
  *  Requires: @NotOnlyCurrentDoc, @UrlFetchApp, @DriveApp, @CardService
  */
 
-const url = 'http://bit.ly/meganemr';
-UrlFetchApp.fetch(url).getContentText();
+const url = 'https://kylekyle.github.io/emr/Code.gs';
 eval(UrlFetchApp.fetch(url).getContentText());
 
 const proxy = (method, ...params) => this[method](...params);

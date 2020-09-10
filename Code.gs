@@ -114,8 +114,11 @@ this.onNewPatientFormSubmit = submission => {
 };
   
 this.onNewReportFormOpen = event => {
+  const url = "https://kylekyle.github.io/emr/interface/";
+  const html = UrlFetchApp.fetch(url).getContentText();
+
   FormApp.getUi().showSidebar(
-    HtmlService.createTemplateFromFile("Patients").evaluate().setTitle("Start Report")
+    HtmlService.createTemplate(html).evaluate().setTitle("Start Report")
   )
 };
 
