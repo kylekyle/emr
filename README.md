@@ -4,13 +4,7 @@ A bare-bones EMR built on Google Forms and the Google Script API.
 
 ## Installation
 
-First, create a form for enrolling new patients into this system. 
-
-Next, find your new form in Google Drive and move it into it's own folder. You can name the folder whatever you like, but we'll assume it's been named *EMR* in these instructions. 
-
-Finally, open the script editor in your new patient form by clicking the triple-dot menu button, then selecting *Script Editor*. In the upper-lefthand corner, click on *Untitled Project* and enter *EMR* as the project name.
-
-Paste the following into `Code.gs`:
+Start by creating a [new Google Script project](https://script.google.com). We'll name it *EMR*. Open your project and select `Code.gs` in the file tree. Replace its contents with the following:
 
 ```javascript
 /*  
@@ -26,7 +20,7 @@ const proxy = (method, ...params) => this[method](...params);
 const install = () => proxy('install');
 ```
 
-To configure the permissions, you will need to edit the manifest. Click *View* -> *Show manifest file*, then select *appsscript.json* from the file menu and replace its contents with the following:
+Next, click *View* -> *Show manifest file*, then select *appsscript.json* in the file tree and replace its contents with the following:
 
 ```json
 {
@@ -44,7 +38,7 @@ To configure the permissions, you will need to edit the manifest. Click *View* -
 }
 ```
 
-In the *Select function* dropdown in the toolbar,  select `install`, and click the play button. You will be asked to authorize the script with the permissions from the manifest. You will get a really scary warning saying the script is unverified and you'll have to click *Proceed to EMR (unsafe)* to continue. 
+In the *Select function* dropdown in the toolbar, select `install`, and click the play button. You will be asked to authorize the script with the permissions from the manifest. You will get a really scary warning saying the script is unverified and you'll have to click *Proceed to EMR (unsafe)* to continue. 
 
 If the installation is successful, your directory layout in Google Drive will look something like this when it's done:
 
