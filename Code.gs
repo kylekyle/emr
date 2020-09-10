@@ -16,12 +16,20 @@ this.install = () => {
   properties.setProperty("EMR_PATIENT_FOLDER_ID", patientFolder.getId());
 
   // attach the new patient form triggers into this form
-  const newPatient = FormApp.create("New Patient").setTitle("New Patient");
+  const newPatient = FormApp
+    .create("New Patient")
+    .setTitle("New Patient")
+    .setAllowResponseEdits(true);
+
   DriveApp.getFileById(newPatient.getId()).moveTo(emrFolder);
   properties.setProperty("EMR_NEW_PATIENT_FORM_ID", newPatient.getId());
 
   // create the New Report form
-  const newReport = FormApp.create("New EMR Report").setTitle("New EMR Report");
+  const newReport = FormApp
+    .create("New EMR Report")
+    .setTitle("New EMR Report")
+    .setAllowResponseEdits(true);
+    
   DriveApp.getFileById(newReport.getId()).moveTo(emrFolder);
   properties.setProperty("EMR_NEW_REPORT_FORM_ID", newReport.getId());
   
