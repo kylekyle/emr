@@ -1,7 +1,10 @@
 this.getReportLink = fileId => {
-  const newReportForm = FormApp.getActiveForm();
-  
-  const fileIdItem = newReportForm.getItems().find(item =>
+  const properties = PropertiesService.getScriptProperties();
+
+  const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
+  const newReport = FormApp.openById(newReportId);
+
+  const fileIdItem = newReport.getItems().find(item =>
     item.getTitle() == 'Patient File ID'
   );
   
@@ -9,7 +12,7 @@ this.getReportLink = fileId => {
     throw "Could not find 'Patient File ID' field in report form!";
   }
     
-  return newReportForm
+  return newReport
     .createResponse()
     .withItemResponse(
       fileIdItem.asTextItem().createResponse(fileId)
@@ -29,20 +32,20 @@ this.install = () => {
     ScriptApp.deleteTrigger(trigger)
   );
   
-  // attach the new patient form triggers into this form
-  const newPatientForm = FormApp.getActiveForm();
-  ScriptApp.newTrigger("onNewPatientFormOpen").forForm(newPatientForm).onOpen().create();
-  ScriptApp.newTrigger("onNewPatientFormSubmit").forForm(newPatientForm).onFormSubmit().create();  
-  
-  // at the time this was written, files could have multiple parents ...
-  const emrFolder = DriveApp.getFileById(newPatientForm.getId()).getParents().next();  
+  // create folders
+  const emrFolder = DriveApp.createFolder("EMR");  
   const patientFolder = emrFolder.createFolder("EMR Patients");
   properties.setProperty("EMR_PATIENT_FOLDER_ID", patientFolder.getId());
 
+  // attach the new patient form triggers into this form
+  const newPatient = FormApp.create("New Patient").setTitle("New Patient");
+  DriveApp.getFileById(newReport.getId()).moveTo(emrFolder);
+  properties.setProperty("EMR_NEW_PATIENT_FORM_ID", newReport.getId());
+
   // create the New Report form
-  const newReportForm = FormApp.create("New EMR Report").setTitle("New EMR Report");
-  DriveApp.getFileById(newReportForm.getId()).moveTo(emrFolder);
-  properties.setProperty("EMR_NEW_REPORT_FORM_ID", newReportForm.getId());
+  const newReport = FormApp.create("New EMR Report").setTitle("New EMR Report");
+  DriveApp.getFileById(newReport.getId()).moveTo(emrFolder);
+  properties.setProperty("EMR_NEW_REPORT_FORM_ID", newReport.getId());
   
   // the report must specify the 44 character id of the patient file it is going to
   const validation = FormApp.createTextValidation()
@@ -50,18 +53,21 @@ this.install = () => {
     .setHelpText('This field should be automatically populated with the 44 character Google Drive ID of the target patient file. If not, re-open this form using the patient popup in the form editor')
     .build();
 
-  newReportForm
+  newReport
     .addTextItem()
     .setRequired(true)
     .setTitle("Patient File ID")
     .setValidation(validation);
    
-  // attach the report form triggers
-  ScriptApp.newTrigger("onNewReportFormOpen").forForm(newReportForm).onOpen().create();
-  ScriptApp.newTrigger("onNewReportFormSubmit").forForm(newReportForm).onFormSubmit().create();
+  // attach triggers to our new forms
+  ScriptApp.newTrigger("onNewPatientOpen").forForm(newPatient).onOpen().create();
+  ScriptApp.newTrigger("onNewPatientSubmit").forForm(newPatient).onFormSubmit().create();
+
+  ScriptApp.newTrigger("onNewReportOpen").forForm(newReport).onOpen().create();
+  ScriptApp.newTrigger("onNewReportSubmit").forForm(newReport).onFormSubmit().create();
 };
 
-this.onNewPatientFormOpen = event => Logger.log("EMR: Enrollment form opened");
+this.onNewPatientOpen = event => Logger.log("New patient form opened");
 
 this.getPatients = () => {
   const patients = {};
@@ -77,7 +83,7 @@ this.getPatients = () => {
   return patients;
 };
 
-this.onNewPatientFormSubmit = submission => {
+this.onNewPatientSubmit = submission => {
   const patients = getPatients();
   const description = serialize(submission.response);
   const itemResponses = submission.response.getItemResponses();
@@ -89,14 +95,14 @@ this.onNewPatientFormSubmit = submission => {
   const name = nameItem.getResponse();
   
   if (name in patients) {
-    Logger.log("EMR: Updating %s's enrollment information", name);
+    Logger.log("Updating %s's patient information", name);
   
     FormApp
       .openById(patients[name])
       .setTitle(name)
       .setDescription(description);
   } else {   
-    Logger.log("EMR: Creating file for %s", name);
+    Logger.log("Creating patient file for %s", name);
   
     const form = FormApp
       .create(name)
@@ -113,7 +119,7 @@ this.onNewPatientFormSubmit = submission => {
   }
 };
   
-this.onNewReportFormOpen = event => {
+this.onNewReportOpen = event => {
   const url = "https://kylekyle.github.io/emr/interface/";
   const html = UrlFetchApp.fetch(url).getContentText();
 
@@ -125,14 +131,15 @@ this.onNewReportFormOpen = event => {
 // something weird is going on here. The right trigger is firing, 
 // but the submission.source is pointing to the new patient form.
 // Not sure why ...
-this.onNewReportFormSubmit = submission => {
-  const properties = PropertiesService.getScriptProperties();
+this.onNewReportSubmit = submission => {
+  // const properties = PropertiesService.getScriptProperties();
 
-  const newReportFormId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
-  const newReportForm = FormApp.openById(newReportFormId);
+  // const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
+  // const newReport = FormApp.openById(newReportId);
   
-  const responses = newReportForm.getResponses();
-  const response = responses[responses.length-1];
+  // const responses = newReport.getResponses();
+  // const response = responses[responses.length-1];
+  const response = submission.response;
   const reportText = serialize(response);
   
   const fileId = response.getItemResponses().find(item => {
