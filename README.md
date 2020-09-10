@@ -16,18 +16,37 @@ Paste the following into `Code.gs`:
 /*  
  *  Google Forms EMR
  *  https://github.com/kylekyle/emr/
- * 
- *  Requires: @NotOnlyCurrentDoc, @UrlFetchApp, @DriveApp, @CardService
  */
 
-const url = 'https://kylekyle.github.io/emr/Code.gs';
+let url = 'https://kylekyle.github.io/emr/Code.gs';
+url += '?v=' + Utilities.getUuid();
 eval(UrlFetchApp.fetch(url).getContentText());
 
 const proxy = (method, ...params) => this[method](...params);
 const install = () => proxy('install');
 ```
 
-Choose `install` from the *Select function* dropdown in the toolbar and click the play button. You will be asked to authorize the script with the permissions from the manifest. You will get a really scary warning saying the script is unverified and you'll have to click *Proceed to EMR (unsafe)* to continue. Your directory layout in Google Drive will look something like this when it's done:
+To configure the permissions, you will need to edit the manifest. Click *View* -> *Show manifest file*, then select *appsscript.json* from the file menu and replace its contents with the following:
+
+```json
+{
+  "timeZone": "America/New_York",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/forms",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.container.ui"
+  ]
+}
+```
+
+In the *Select function* dropdown in the toolbar,  select `install`, and click the play button. You will be asked to authorize the script with the permissions from the manifest. You will get a really scary warning saying the script is unverified and you'll have to click *Proceed to EMR (unsafe)* to continue. 
+
+If the installation is successful, your directory layout in Google Drive will look something like this when it's done:
 
 ```text
 EMR
