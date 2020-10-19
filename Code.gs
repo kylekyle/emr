@@ -21,6 +21,16 @@ this.install = () => {
     .setTitle("New Patient")
     .setAllowResponseEdits(true);
 
+  newPatient
+    .addTextItem()
+    .setRequired(true)
+    .setTitle("First Name");
+    
+  newPatient
+    .addTextItem()
+    .setRequired(true)
+    .setTitle("Last Name");    
+
   DriveApp.getFileById(newPatient.getId()).moveTo(emrFolder);
   properties.setProperty("EMR_NEW_PATIENT_FORM_ID", newPatient.getId());
 
@@ -33,6 +43,11 @@ this.install = () => {
   DriveApp.getFileById(newReport.getId()).moveTo(emrFolder);
   properties.setProperty("EMR_NEW_REPORT_FORM_ID", newReport.getId());
   
+  newReport
+    .addTextItem()
+    .setRequired(true)
+    .setTitle("Patient Name");
+
   // the report must specify the 44 character id of the patient file it is going to
   const validation = FormApp.createTextValidation()
     .requireTextLengthGreaterThanOrEqualTo(44)
@@ -147,11 +162,19 @@ this.getPatients = () => {
   return patients;
 };
 
-this.getReportLink = fileId => {
+this.getReportLink = (fileId, patientName) => {
   const properties = PropertiesService.getScriptProperties();
 
   const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
   const newReport = FormApp.openById(newReportId);
+
+  const patientNameItem = newReport.getItems().find(item =>
+    item.getTitle() == 'Patient Name'
+  );
+
+  if (!patientNameItem) {
+    throw "Could not find 'Patient Name' field in report form!";
+  }
 
   const fileIdItem = newReport.getItems().find(item =>
     item.getTitle() == 'Patient File ID'
@@ -165,6 +188,9 @@ this.getReportLink = fileId => {
     .createResponse()
     .withItemResponse(
       fileIdItem.asTextItem().createResponse(fileId)
+    )
+    .withItemResponse(
+      patientNameItem.asTextItem().createResponse(patientName)
     )
     .toPrefilledUrl();
 };

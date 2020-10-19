@@ -37,7 +37,7 @@
               .withSuccessHandler(url => {
                 $('#submit').attr('href', url).removeClass('disabled');
               })
-              .proxy('getReportLink', $('#patients').val());
+              .proxy('getReportLink', $('#patients').val(), $('#patients option:selected').text());
           });
         })
         .proxy('getPatients');
