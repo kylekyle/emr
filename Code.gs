@@ -168,31 +168,21 @@ this.getReportLink = (fileId, patientName) => {
   const newReportId = properties.getProperty("EMR_NEW_REPORT_FORM_ID");
   const newReport = FormApp.openById(newReportId);
 
-  const patientNameItem = newReport.getItems().find(item =>
-    item.getTitle() == 'Patient Name'
-  );
+  let response = newReport.createResponse();
 
-  if (!patientNameItem) {
-    throw "Could not find 'Patient Name' field in report form!";
-  }
-
-  const fileIdItem = newReport.getItems().find(item =>
-    item.getTitle() == 'Patient File ID'
-  );
+  newReport.getItems().forEach(item => {
+    if (item.getTitle() == 'Patient File ID') {
+      response = response.withItemResponse(
+        item.asTextItem().createResponse(fileId)
+      )
+    } else if (item.getTitle() == 'Patient Name') {
+      response = response.withItemResponse(
+        item.asTextItem().createResponse(patientName)
+      )
+    }
+  });
   
-  if (!fileIdItem) {
-    throw "Could not find 'Patient File ID' field in report form!";
-  }
-    
-  return newReport
-    .createResponse()
-    .withItemResponse(
-      fileIdItem.asTextItem().createResponse(fileId)
-    )
-    .withItemResponse(
-      patientNameItem.asTextItem().createResponse(patientName)
-    )
-    .toPrefilledUrl();
+  return response.toPrefilledUrl();
 };
 
 this.serialize = response => {  
