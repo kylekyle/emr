@@ -16,8 +16,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="//kylekyle.github.io/emr/interface/interface.min.js"></script>
     <script>
-      $('#patients').selectpicker();
-      
       google.script.run
         .withFailureHandler(console.log)
         .withSuccessHandler(patients => {
@@ -30,7 +28,7 @@
           }
 
           $('#patients').prop('disabled', false);
-          $('#patients').selectpicker('refresh');
+          $('#patients').selectpicker();
         
           $('#patients').change(e => {
             $('#submit').addClass('disabled');
